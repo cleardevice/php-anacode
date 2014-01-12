@@ -38,13 +38,17 @@ $used_entities = $used_files = [];
 foreach ($used_data as $entity => $freq_of_use) {
     $search_stack = [];
     $search = $entity;
-    while (isset($relations_data[$search])) {
+    while (!empty($search) && isset($relations_data[$search])) {
         $used_entities[$search] = true;
         $used_files[$relations_data[$search]['p']] = true;
-        if (isset($relations_data[$search]['ext'])) {
-            $search = $relations_data[$search]['ext'];
+        if (isset($relations_data[$search]['ext']) || !empty($relations_data[$search]['ext'])) {
             if (!empty($relations_data[$search]['int'])) {
-                $search_stack = array_merge($search_stack, $relations_data[$search]['int']);
+                $search_stack += $relations_data[$search]['int'];
+            }
+            if (isset($relations_data[$search]['ext'])) {
+                $search = $relations_data[$search]['ext'];
+            } else {
+                $search = array_pop($search_stack);
             }
         } elseif (!empty($search_stack)) {
             $search = array_pop($search_stack);
@@ -54,8 +58,8 @@ foreach ($used_data as $entity => $freq_of_use) {
     }
 }
 
-$unused_entities = array_diff(array_keys($relations_data), $used_entities);
-$unused_files = array_diff($project_files, array_unique($used_files));
+$unused_entities = array_diff(array_keys($relations_data), array_keys($used_entities));
+$unused_files = array_diff($project_files, array_unique(array_keys($used_files)));
 
 file_put_contents($out_path . DIRECTORY_SEPARATOR . 'remove_entries', implode(PHP_EOL, $unused_entities));
 file_put_contents($out_path . DIRECTORY_SEPARATOR . 'remove_files', implode(PHP_EOL, $unused_files));

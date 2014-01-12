@@ -1,5 +1,5 @@
 <?php
-// TODO add statistics: k entities in l files found in m sec
+
 namespace anacode;
 
 class RelationsMapper extends AbstractMapper {
@@ -14,11 +14,14 @@ class RelationsMapper extends AbstractMapper {
      * @todo add NS support (T_NS_SEPARATOR)
      */
     public function generateMap(array $path_list) {
+        $start_at = microtime(true);
+
         $map = [];
         foreach ($path_list as $path) foreach ($path as $file) {
             if ($file->getExtension() != 'php' || $this->isExcluded($file->getRealPath()))
                 continue;
 
+            $this->files_processed++;
             $tokens = token_get_all(file_get_contents($file->getRealPath()));
 
             $ent_name = null;
@@ -37,6 +40,7 @@ class RelationsMapper extends AbstractMapper {
                     case T_STRING:
                         $token_name = strtolower($token[1]);
                         if ($readEntityName) {
+                            $this->entities_processed++;
                             $ent_name = $token_name;
                             $map[$ent_name]['p'] = $file->getRealPath();
                             $readEntityName = false;
@@ -71,6 +75,10 @@ class RelationsMapper extends AbstractMapper {
         }
 
         $this->map = $map;
+        $this->time_elapsed = microtime(true) - $start_at;
+
+        $this->printStat();
+
         return $this;
     }
 

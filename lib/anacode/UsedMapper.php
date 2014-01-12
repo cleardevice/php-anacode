@@ -16,11 +16,14 @@ class UsedMapper extends AbstractMapper {
      * @todo add NS support (T_NS_SEPARATOR)
      */
     public function generateMap(array $path_list) {
+        $start_at = microtime(true);
+
         $map = [];
         foreach ($path_list as $path) foreach ($path as $file) {
             if ($file->getExtension() != 'php' || $this->isExcluded($file->getRealPath()))
                 continue;
 
+            $this->files_processed++;
             $tokens = token_get_all(file_get_contents($file->getRealPath()));
 
             $prev_token_name = null;
@@ -30,6 +33,7 @@ class UsedMapper extends AbstractMapper {
                     case T_STRING:
                         $curr_token_name = strtolower($token[1]);
                         if ($newEntity) {
+                            $this->entities_processed++;
                             if (!in_array($curr_token_name, self::$exceptEntities)) {
                                 $map[$curr_token_name] = isset($map[$curr_token_name]) ?
                                     $map[$curr_token_name]+1 : 1;
@@ -38,6 +42,7 @@ class UsedMapper extends AbstractMapper {
                         }
 
                         if ($staticEntity) {
+                            $this->entities_processed++;
                             if (!in_array($prev_token_name, self::$exceptEntities)) {
                                 $map[$prev_token_name] = isset($map[$prev_token_name]) ?
                                     $map[$prev_token_name]+1 : 1;
@@ -67,6 +72,10 @@ class UsedMapper extends AbstractMapper {
         }
 
         $this->map = $map;
+        $this->time_elapsed = microtime(true) - $start_at;
+
+        $this->printStat();
+
         return $this;
     }
 
@@ -78,7 +87,7 @@ class UsedMapper extends AbstractMapper {
         if (!$this->pretty)
             return $json;
 
-        return str_replace(",\"", ",\n\"", $json);
+        return str_replace(',"', sprintf(',%s"', PHP_EOL), $json);
     }
 
 }
