@@ -16,10 +16,18 @@ class AbstractMapper {
     public function setPretty($value = true)
     {
         $this->pretty = (bool)$value;
+        return $this;
     }
 
+    /*
+     * Add pattern to exclude patterns list
+     *
+     * @patterns array excluded patterns
+     * @return $this
+     */
     public function addExclude(array $patterns) {
         $this->exclude_pattern += array_filter($patterns);
+        return $this;
     }
 
     protected function isExcluded($curr_path) {
@@ -56,9 +64,15 @@ class AbstractMapper {
         return $this->prettifyJSON(json_encode($this->map));
     }
 
-    protected function printStat() {
+    /*
+     * Print generate stats
+     *
+     * @return $this
+     */
+    public function printStat() {
         printf('%d entities in %d files found in %.3f sec' . PHP_EOL,
             $this->entities_processed, $this->files_processed, $this->time_elapsed);
+        return $this;
     }
 
 }

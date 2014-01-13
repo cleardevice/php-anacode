@@ -32,5 +32,5 @@ foreach (explode(' ', $arguments['path']) as $path) {
 $output_filename = empty($arguments['out']) ? 'relations_map.json' : $arguments['out'];
 
 $relationsMapper = new anacode\RelationsMapper;
-$relationsMapper->addExclude(explode(' ', $arguments['exclude']));
-file_put_contents($output_filename, $relationsMapper->generateMap($path_list));
+$relationsMapper->addExclude(explode(' ', $arguments['exclude']))->generateMap($path_list)->printStat();
+file_put_contents($output_filename, $relationsMapper);

@@ -77,8 +77,6 @@ class RelationsMapper extends AbstractMapper {
         $this->map = $map;
         $this->time_elapsed = microtime(true) - $start_at;
 
-        $this->printStat();
-
         return $this;
     }
 

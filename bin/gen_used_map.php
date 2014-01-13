@@ -32,5 +32,5 @@ foreach (explode(' ', $arguments['path']) as $path) {
 $output_filename = empty($arguments['out']) ? 'used_map.json' : $arguments['out'];
 
 $usedMapper = new anacode\UsedMapper;
-$usedMapper->addExclude(explode(' ', $arguments['exclude']));
-file_put_contents($output_filename, $usedMapper->generateMap($path_list));
+$usedMapper->setPretty(false)->addExclude(explode(' ', $arguments['exclude']))->generateMap($path_list)->printStat();
+file_put_contents($output_filename, $usedMapper);
