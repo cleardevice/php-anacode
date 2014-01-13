@@ -61,5 +61,8 @@ foreach ($used_data as $entity => $freq_of_use) {
 $unused_entities = array_diff(array_keys($relations_data), array_keys($used_entities));
 $unused_files = array_diff($project_files, array_unique(array_keys($used_files)));
 
+asort($unused_entities);
+asort($unused_files);
+
 file_put_contents($out_path . DIRECTORY_SEPARATOR . 'remove_entries', implode(PHP_EOL, $unused_entities));
 file_put_contents($out_path . DIRECTORY_SEPARATOR . 'remove_files', implode(PHP_EOL, $unused_files));
